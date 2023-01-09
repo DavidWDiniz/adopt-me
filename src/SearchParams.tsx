@@ -1,18 +1,19 @@
-import {useContext, useState} from "react";
+import { useContext, useState } from "react";
 import useBreedList from "./useBreedList";
 import Results from "./Results";
 import { useQuery } from "@tanstack/react-query";
 import fetchSearch from "./fetchSearch";
 import AdoptedPetContext from "./AdoptedPetContext";
+import { Animal } from "./APIResponsesTypes";
 
-const ANIMALS = ["bird", "cat", "dog", "rabbit", "reptile"];
+const ANIMALS: Animal[] = ["bird", "cat", "dog", "rabbit", "reptile"];
 const SearchParams = () => {
   const [requestParams, setRequestParams] = useState({
-    animal: "",
+    animal: "" as Animal,
     breed: "",
     location: "",
   });
-  const [animal, setAnimal] = useState("");
+  const [animal, setAnimal] = useState("" as Animal);
   const [breeds] = useBreedList(animal);
   const [adoptedPet] = useContext(AdoptedPetContext);
 
@@ -24,20 +25,20 @@ const SearchParams = () => {
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          const formData = new FormData(event.target);
+          const formData = new FormData(event.currentTarget);
           const obj = {
-            animal: formData.get("animal") ?? "",
-            breed: formData.get("breed") ?? "",
-            location: formData.get("location") ?? "",
+            animal: (formData.get("animal")?.toString() as Animal) ?? "",
+            breed: formData.get("breed")?.toString() ?? "",
+            location: formData.get("location")?.toString() ?? "",
           };
           setRequestParams(obj);
         }}
       >
-        {
-          adoptedPet && (<div className="pet image-container">
-          <img src={adoptedPet.images[0]} alt={adoptedPet.name}/>
-          </div>)
-        }
+        {adoptedPet && (
+          <div className="pet image-container">
+            <img src={adoptedPet.images[0]} alt={adoptedPet.name} />
+          </div>
+        )}
         <label htmlFor="location">
           Location
           <input name="location" id="location" placeholder="location" />
@@ -46,7 +47,7 @@ const SearchParams = () => {
           Animal
           <select
             onChange={(event) => {
-              setAnimal(event.target.value);
+              setAnimal(event.target.value as Animal);
             }}
             id="animal"
             value={animal}
