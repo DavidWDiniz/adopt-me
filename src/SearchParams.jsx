@@ -1,23 +1,20 @@
-import {useContext, useState} from "react";
+import { useState } from "react";
 import useBreedList from "./useBreedList";
 import Results from "./Results";
-import { useQuery } from "@tanstack/react-query";
-import fetchSearch from "./fetchSearch";
-import AdoptedPetContext from "./AdoptedPetContext";
+import { useDispatch, useSelector } from "react-redux";
+import { all } from "./searchParamsSlice";
+import { useSearchQuery } from "./petAPIService";
 
 const ANIMALS = ["bird", "cat", "dog", "rabbit", "reptile"];
 const SearchParams = () => {
-  const [requestParams, setRequestParams] = useState({
-    animal: "",
-    breed: "",
-    location: "",
-  });
   const [animal, setAnimal] = useState("");
   const [breeds] = useBreedList(animal);
-  const [adoptedPet] = useContext(AdoptedPetContext);
+  const adoptedPet = useSelector((state) => state.adoptedPet.value);
+  const searchParams = useSelector((state) => state.searchParams.value);
+  const dispatch = useDispatch();
 
-  const results = useQuery(["search", requestParams], fetchSearch);
-  const pets = results?.data?.pets ?? [];
+  let { data: pets } = useSearchQuery(searchParams);
+  pets = pets ?? [];
 
   return (
     <div className="search-params">
@@ -30,14 +27,14 @@ const SearchParams = () => {
             breed: formData.get("breed") ?? "",
             location: formData.get("location") ?? "",
           };
-          setRequestParams(obj);
+          dispatch(all(obj));
         }}
       >
-        {
-          adoptedPet && (<div className="pet image-container">
-          <img src={adoptedPet.images[0]} alt={adoptedPet.name}/>
-          </div>)
-        }
+        {adoptedPet && (
+          <div className="pet image-container">
+            <img src={adoptedPet.images[0]} alt={adoptedPet.name} />
+          </div>
+        )}
         <label htmlFor="location">
           Location
           <input name="location" id="location" placeholder="location" />
@@ -48,6 +45,7 @@ const SearchParams = () => {
             onChange={(event) => {
               setAnimal(event.target.value);
             }}
+            name="animal"
             id="animal"
             value={animal}
           >
