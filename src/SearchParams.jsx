@@ -49,6 +49,7 @@ const SearchParams = () => {
               setAnimal(event.target.value);
             }}
             id="animal"
+            name="animal"
             value={animal}
           >
             <option />
